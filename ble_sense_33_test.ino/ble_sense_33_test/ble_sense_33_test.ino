@@ -150,16 +150,35 @@ void onRxCharValueUpdate(BLEDevice central, BLECharacteristic characteristic) {
   Serial.println(rxChar.valueLength());
   int result = test[0];
   Serial.println(result);
-  # ASCII value of 0 and 1 are 48 and 49
-  # Check if user send 0 or 1
+  // ASCII value of 0 and 1 are 48 and 49
+  // Check if user send 0 or 1 or 2
+  // 1: Switch On
   if (result==49){
     Serial.println("Switch On");
     digitalWrite(RELAY_PIN, HIGH);
   }
+  // 0: Switch Off
   else if (result ==48){
     Serial.println("Switch OFF");
     digitalWrite(RELAY_PIN, LOW);
   }
+  // 2: Switch On, wait for 1000ms, then Switch Off
+  else if (result ==50){
+    Serial.println("Switch On");
+    digitalWrite(RELAY_PIN, HIGH);
+    delay(1000);
+    Serial.println("Switch OFF");
+    digitalWrite(RELAY_PIN, LOW);
+  }
+  // 3: Switch OFF, wait for 1000ms, then Switch On
+  else if (result ==51){
+    Serial.println("Switch OFF");
+    digitalWrite(RELAY_PIN, LOW);
+    delay(1000);
+    Serial.println("Switch On");
+    digitalWrite(RELAY_PIN, HIGH);
+  }
+
   else{
 
     Serial.println("Invalid command");
