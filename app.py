@@ -160,6 +160,20 @@ async def user_console_manager(connection: Connection):
             input_str = await ainput("Enter string: ")
             bytes_to_send = bytearray(map(ord, input_str))
             await connection.client.write_gatt_char(write_characteristic, bytes_to_send)
+            # current date and time
+            date_time = datetime.now()
+
+            # different format specifications
+            format1 = '%Y-%m-%d %H:%M:%S'  # YYYY-MM-DD HH:MM:SS
+            #format2 = '%d/%m/%Y, %H:%M:%S'  # DD/MM/YYYY, HH:MM:SS
+            #format3 = '%A, %d. %B %Y %I:%M%p'  # Monday, 30. June 2022 03:30PM
+
+            # applying strftime() to format the datetime
+            string1 = date_time.strftime(format1)
+            #string2 = date_time.strftime(format2)
+            #string3 = date_time.strftime(format3)
+
+            print('Time: ', string1)
             print(f"Sent: {input_str}")
         else:
             #await asyncio.sleep(2.0, loop=loop)
