@@ -5,6 +5,7 @@ import asyncio
 import platform
 from datetime import datetime
 from typing import Callable, Any
+from time import sleep
 
 from aioconsole import ainput
 from bleak import BleakClient, discover
@@ -25,17 +26,17 @@ class DataToFile:
         self.path = write_path
 
     def write_to_csv(self, times: [int], delays: [datetime], data_values: [Any]):
+        pass 
+        #if len(set([len(times), len(delays), len(data_values)])) > 1:
+        #    raise Exception("Not all data lists are the same length.")
 
-        if len(set([len(times), len(delays), len(data_values)])) > 1:
-            raise Exception("Not all data lists are the same length.")
-
-        with open(self.path, "a+") as f:
-            if os.stat(self.path).st_size == 0:
-                print("Created file.")
-                f.write(",".join([str(name) for name in self.column_names]) + ",\n")
-            else:
-                for i in range(len(data_values)):
-                    f.write(f"{times[i]},{delays[i]},{data_values[i]},\n")
+        #with open(self.path, "a+") as f:
+        #    if os.stat(self.path).st_size == 0:
+        #        print("Created file.")
+        #        f.write(",".join([str(name) for name in self.column_names]) + ",\n")
+        #    else:
+        #        for i in range(len(data_values)):
+        #            f.write(f"{times[i]},{delays[i]},{data_values[i]},\n")
 
 
 class Connection:
@@ -112,21 +113,24 @@ class Connection:
         devices = await discover()
 
         print("Please select device: ")
+        response = -1
         for i, device in enumerate(devices):
             print(f"{i}: {device.name}")
+            if device.name =="MicrophoneMonitor":
+                response = i
 
-        response = -1
-        while True:
-            response = await ainput("Select device: ")
-            try:
-                response = int(response.strip())
-            except:
-                print("Please make valid selection.")
-            
-            if response > -1 and response < len(devices):
-                break
-            else:
-                print("Please make valid selection.")
+        #response = -1
+        #while True:
+        #    response = await ainput("Select device: ")
+        #    try:
+        #        response = int(response.strip())
+        #    except:
+        #        print("Please make valid selection.")
+        #    
+        #    if response > -1 and response < len(devices):
+        #        break
+        #    else:
+        #        print("Please make valid selection.")
 
         print(f"Connecting to {devices[response].name}")
         self.connected_device = devices[response]
@@ -182,7 +186,26 @@ async def user_console_manager(connection: Connection):
 
 async def main():
     while True:
-        # YOUR APP CODE WOULD GO HERE.
+        if connection.client and connection.connected:
+            # YOUR APP CODE WOULD GO HERE.
+            print("Sending 0 ...")
+            input_str="0"
+            bytes_to_send = bytearray(map(ord, input_str))
+            await connection.client.write_gatt_char(write_characteristic, bytes_to_send)
+            sleep(3)
+            print("Sending 1 ...")
+            input_str="1"
+            bytes_to_send = bytearray(map(ord, input_str))
+            await connection.client.write_gatt_char(write_characteristic, bytes_to_send)
+            sleep(3)
+            print("Sending 0 ...")
+            input_str="0"
+            bytes_to_send = bytearray(map(ord, input_str))
+            await connection.client.write_gatt_char(write_characteristic, bytes_to_send)
+            sleep(3)
+        else:
+            #await asyncio.sleep(2.0, loop=loop)
+            await asyncio.sleep(2.0)
         await asyncio.sleep(5)
 
 
@@ -205,7 +228,7 @@ if __name__ == "__main__":
     try:
         asyncio.ensure_future(connection.manager())
         asyncio.ensure_future(user_console_manager(connection))
-        asyncio.ensure_future(main())
+        #asyncio.ensure_future(main())
         loop.run_forever()
     except KeyboardInterrupt:
         print()
